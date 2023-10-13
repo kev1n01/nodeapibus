@@ -2,8 +2,10 @@ import { pool } from "../db.js"
 
 const getDrivers = async (req, res) => {
     try {
-        const response = await pool.query('SELECT * FROM drivers')
-        res.status(200).json(response.rows)
+        const response = await pool.query('SELECT * FROM drivers WHERE lat IS NOT NULL AND lng IS NOT NULL')
+        res.status(200).json({
+            data: response.rows
+        })
     } catch (error) {
         return res.status(500).json({
             message: 'Something goes wrong'
@@ -52,7 +54,8 @@ const updateDriver = async (req, res) => {
         })
         const driver = await pool.query('SELECT * FROM drivers WHERE id = $1', [id])
         res.status(200).json({
-            message: 'Driver updated'
+            message: 'Driver updated',
+            driver: driver.rows
         })
     } catch (error) {
         return res.status(500).json({
