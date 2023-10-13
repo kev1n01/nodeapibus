@@ -2,8 +2,8 @@ import { pool } from "../db.js"
 
 const getDrivers = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM driver')
-        res.json(rows)
+        const response = await pool.query('SELECT * FROM drivers')
+        res.status(200).json(response.rows)
     } catch (error) {
         return res.status(500).json({
             message: 'Something goes wrong'
@@ -13,11 +13,11 @@ const getDrivers = async (req, res) => {
 
 const getDriver = async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM driver WHERE id = ?', [req.params.id])
-        if (rows.length <= 0) return res.status(400).json({
+        const response = await pool.query('SELECT * FROM drivers WHERE id = $1', [req.params.id])
+        if (response.rows.length <= 0) return res.status(400).json({
             message: 'Driver not found'
         })
-        res.json(rows[0])
+        res.status(200).json(response.rows[0])
     } catch (error) {
         return res.status(500).json({
             message: 'Something goes wrong'
@@ -26,11 +26,13 @@ const getDriver = async (req, res) => {
 }
 
 const createDriver = async (req, res) => {
-    const alias = req.body.alias
     try {
-        const [rows] = await pool.query('INSERT INTO driver (alias) VALUES (?)', [alias])
-        res.send({
-            id: rows.insertId,
+        const alias = req.body.alias
+        const rows = await pool.query('INSERT INTO drivers (alias) VALUES ($1)', [alias])
+        const driver_created = await pool.query('SELECT id FROM drivers WHERE alias = $1', [alias])
+        const id_driver = driver_created.rows[0]
+        res.status(200).json({
+            id: id_driver.id,
             alias,
         })
     } catch (error) {
@@ -44,12 +46,14 @@ const updateDriver = async (req, res) => {
     const { id } = req.params
     const { lat, lng } = req.body
     try {
-        const [result] = await pool.query('UPDATE driver SET lat = ?, lng = ? WHERE id = ?', [lat, lng, id])
-        if (result.affectedRows === 0) return res.status(404).json({
+        const response = await pool.query('UPDATE drivers SET lat = $1, lng = $2 WHERE id = $3', [lat, lng, id])
+        if (response.rowCount === 0) return res.status(404).json({
             message: 'Driver not found'
         })
-        const [rows] = await pool.query('SELECT * FROM driver WHERE id = ?', [id])
-        res.json(rows[0])
+        const driver = await pool.query('SELECT * FROM drivers WHERE id = $1', [id])
+        res.status(200).json({
+            message: 'Driver updated'
+        })
     } catch (error) {
         return res.status(500).json({
             message: 'Something goes wrong'
@@ -59,11 +63,15 @@ const updateDriver = async (req, res) => {
 
 const deleteDriver = async (req, res) => {
     try {
-        const [result] = await pool.query('DELETE FROM driver WHERE id = ?', [req.params.id])
-        if (result.affectedRows <= 0) return res.status(400).json({
+        const response = await pool.query('DELETE FROM drivers WHERE id = $1', [req.params.id])
+        if (response.rowCount === 0) return res.status(400).json({
             message: 'Driver not found'
         })
-        res.sendStatus(204)
+
+        res.status(200).json({
+            message: 'Driver deleted'
+        })
+
     } catch (error) {
         return res.status(500).json({
             message: 'Something goes wrong'

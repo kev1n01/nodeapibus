@@ -8,5 +8,11 @@ const DB_PORT = process.env.DB_PORT
 const DB_USER = process.env.DB_USER
 const DB_PASSWORD = process.env.DB_PASSWORD
 const DB_DATABASE = process.env.DB_DATABASE
-
-export { PORT, DB_HOST, DB_DATABASE, DB_PORT, DB_USER, DB_PASSWORD }
+export {
+    PORT,
+    DB_HOST,
+    DB_PORT,
+    DB_USER,
+    DB_PASSWORD,
+    DB_DATABASE,
+}
