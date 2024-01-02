@@ -2,7 +2,7 @@ import { pool } from "../db.js"
 
 const getDrivers = async (req, res) => {
     try {
-        const response = await pool.query('SELECT * FROM drivers WHERE lat IS NOT NULL AND lng IS NOT NULL')
+        const response = await pool.query('SELECT * FROM drivers WHERE lat IS NOT NULL AND lng IS NOT NULL AND speed IS NOT NULL')
         res.status(200).json({
             data: response.rows
         })
@@ -16,9 +16,7 @@ const getDrivers = async (req, res) => {
 const getDriver = async (req, res) => {
     try {
         const response = await pool.query('SELECT * FROM drivers WHERE id = $1', [req.params.id])
-        if (response.rows.length <= 0) return res.status(400).json({
-            message: 'Driver not found'
-        })
+        if (response.rows.length <= 0) return res.status(400).json({ message: 'Driver not found' })
         res.status(200).json(response.rows[0])
     } catch (error) {
         return res.status(500).json({
@@ -46,9 +44,9 @@ const createDriver = async (req, res) => {
 
 const updateDriver = async (req, res) => {
     const { id } = req.params
-    const { lat, lng } = req.body
+    const { lat, lng, speed } = req.body
     try {
-        const response = await pool.query('UPDATE drivers SET lat = $1, lng = $2 WHERE id = $3', [lat, lng, id])
+        const response = await pool.query('UPDATE drivers SET lat = $1, lng = $2, speed = $3 WHERE id = $4', [lat, lng, speed, id])
         if (response.rowCount === 0) return res.status(404).json({
             message: 'Driver not found'
         })
