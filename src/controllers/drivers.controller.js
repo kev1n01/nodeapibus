@@ -1,14 +1,38 @@
 import { pool } from "../db.js"
+import { Resend } from 'resend'
+import { API_KEY_RESEND, MAIL_TO } from '../config.js'
+
+const sendEmail = async (req, res) => {
+    try {
+        const resend = new Resend('re_3ugy3bnw_PptAaM73djyXZsG9SdLpH7qH');
+        const data = resend.emails.send({
+            from: "req.body.mail_from",
+            to: MAIL_TO,
+            subject: "Mensaje desde la web",
+            html: "req.body.message"
+        });
+
+        res.status(200).json({
+            data: data,
+            status: "send successfully"
+        })
+    } catch (error) {
+        return res.status(500).json({
+            status: "send error",
+            message: 'Something goes wrong'
+        })
+    }
+}
 
 const getDrivers = async (req, res) => {
     try {
-        const response = await pool.query('SELECT * FROM drivers WHERE lat IS NOT NULL AND lng IS NOT NULL AND speed IS NOT NULL')
+        const response = await pool.query('SELECT * FROM drivers WHERE lat IS NOT NULL AND lng IS NOT NULL AND speed IS NULL')
         res.status(200).json({
             data: response.rows
         })
     } catch (error) {
         return res.status(500).json({
-            message: 'Something goes wrong'
+            message: 'Something goes wrong ctmre'
         })
     }
 }
@@ -80,4 +104,4 @@ const deleteDriver = async (req, res) => {
     }
 }
 
-export { getDrivers, getDriver, createDriver, updateDriver, deleteDriver }
+export { getDrivers, getDriver, createDriver, updateDriver, deleteDriver, sendEmail }
