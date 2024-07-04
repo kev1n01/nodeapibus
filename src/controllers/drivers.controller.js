@@ -2,7 +2,7 @@ import { pool } from "../db.js"
 
 const getDrivers = async (req, res) => {
     try {
-        const response = await pool.query('SELECT * FROM drivers WHERE lat IS NOT NULL AND lng IS NOT NULL AND speed IS NOT NULL')
+        const response = await pool.query('SELECT * FROM drivers WHERE lat IS NOT NULL AND lng IS NOT NULL')
         res.status(200).json({
             data: response.rows
         })
